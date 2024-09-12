@@ -1,4 +1,4 @@
-// Charybdis Monitoring System client v0.0.1
+// Charybdis Monitoring System client v0.0.2
 
 package chrdsclient
 
