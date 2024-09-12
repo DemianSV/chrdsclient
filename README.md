@@ -1,2 +1,1 @@
-# chrdsclient
-Charybdis Monitoring System client module
+# Charybdis Monitoring System client module
