@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strings"
@@ -22,7 +23,7 @@ type ConfT struct {
 var Conf ConfT
 
 // Логирование в систему CHRDS
-func Log(metric string, value string) {
+func Log(metric string, value string) error {
 	type RquestRawTextSaveT struct {
 		SpaceID   string `json:"spaceid"`
 		Metric    string `json:"metric"`
@@ -47,13 +48,12 @@ func Log(metric string, value string) {
 	if len(requestRawTextSaveA.Data) > 0 {
 		requestRawTextSaveJSON, err := json.Marshal(requestRawTextSaveA)
 		if err != nil {
-			log.Print("JSON MARSHAL ERROR (", err, ")!")
-			return
+			log.Print("JSON MARSHAL ERROR (", err, ")")
+			return errors.New("JSON MARSHAL ERROR (" + err.Error() + ")")
 		} else {
 			req, err := http.NewRequest("POST", Conf.DataManagerURL+"/api/v1/text/save", bytes.NewBuffer(requestRawTextSaveJSON))
 			if err != nil {
-				log.Print("HTTP REQUEST ERROR (", err, ")!")
-				return
+				return errors.New("HTTP REQUEST ERROR (" + err.Error() + ")")
 			}
 			req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 			req.Header.Set("api_key", Conf.ModulID) // Модуль UIManager
@@ -67,25 +67,24 @@ func Log(metric string, value string) {
 			}
 			resp, err := client.Do(req)
 			if err != nil {
-				log.Print("HTTP REQUEST ERROR (", err, ")!")
-				return
+				return errors.New("HTTP REQUEST ERROR (" + err.Error() + ")")
 			}
 			defer resp.Body.Close()
 
-			return
+			return nil
 		}
 	} else {
-		return
+		return errors.New("NO DATA TO SEND")
 	}
 }
 
-func Status() []bool {
+func Status() ([]bool, error) {
 	var responseUp []bool
 
 	req, err := http.NewRequest("GET", Conf.DataManagerURL+"/api/v1/version", nil)
 	if err != nil {
 		responseUp = append(responseUp, false)
-		log.Print("HTTP REQUEST ERROR (", err, ")!")
+		return responseUp, errors.New("HTTP REQUEST ERROR (" + err.Error() + ")")
 	} else {
 		req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 		req.Header.Set("api_key", Conf.ModulID) // Модуль UIManager
@@ -100,7 +99,7 @@ func Status() []bool {
 		resp, err := client.Do(req)
 		if err != nil {
 			responseUp = append(responseUp, false)
-			log.Print("HTTP REQUEST ERROR (", err, ")!")
+			return responseUp, errors.New("HTTP REQUEST ERROR (" + err.Error() + ")")
 		} else {
 			if resp.StatusCode == 200 {
 				responseUp = append(responseUp, true)
@@ -110,14 +109,14 @@ func Status() []bool {
 		}
 	}
 
-	return responseUp
+	return responseUp, nil
 }
 
 func MakeTimestamp() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
-func Metric(metric string, value float32) {
+func Metric(metric string, value float32) error {
 	type RequestRawDataSaveT struct {
 		SpaceID   string  `json:"spaceid"`
 		Metric    string  `json:"metric"`
@@ -142,12 +141,11 @@ func Metric(metric string, value float32) {
 	if len(requestRawDataSaveArray.Data) > 0 {
 		requestRawDataSaveJSON, err := json.Marshal(requestRawDataSaveArray)
 		if err != nil {
-			log.Print("JSON MARSHAL ERROR (" + err.Error() + ")!")
-			return
+			return errors.New("JSON MARSHAL ERROR (" + err.Error() + ")")
 		} else {
 			req, err := http.NewRequest("POST", Conf.DataManagerURL+"/api/v1/data/save", bytes.NewBuffer(requestRawDataSaveJSON))
 			if err != nil {
-				log.Print("HTTP REQUEST ERROR (", err, ")!")
+				log.Print("HTTP REQUEST ERROR (", err, ")")
 			}
 			req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 			req.Header.Set("api_key", Conf.ModulID) // Модуль UIManager
@@ -161,14 +159,13 @@ func Metric(metric string, value float32) {
 			}
 			resp, err := client.Do(req)
 			if err != nil {
-				log.Print("HTTP REQUEST ERROR (", err, ")!")
-				return
+				return errors.New("HTTP REQUEST ERROR (" + err.Error() + ")")
 			}
 			defer resp.Body.Close()
 
-			return
+			return nil
 		}
 	} else {
-		return
+		return errors.New("NO DATA TO SEND")
 	}
 }
