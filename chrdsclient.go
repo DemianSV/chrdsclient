@@ -111,7 +111,7 @@ func Status() []bool {
 				transport := &http.Transport{
 					TLSClientConfig: &tls.Config{InsecureSkipVerify: Conf.ClientInSecureSkipVerify},
 				}
-				client = &http.Client{Transport: transport, Timeout: 3 * time.Second}
+				client = &http.Client{Transport: transport, Timeout: 1 * time.Second}
 			}
 			resp, err := client.Do(req)
 			if err != nil {
