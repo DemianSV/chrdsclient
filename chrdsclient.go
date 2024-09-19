@@ -16,8 +16,8 @@ type ConfT struct {
 	ClientInSecureSkipVerify bool
 	SpaceID                  string
 	ModuleID                 string
-	DataManagerURL           []string
-	DataManagerTimeOut       int
+	DataManagerURL           []string // DataManager URL, array
+	DataManagerTimeOut       int      // Connect DataManager timeout, default 1 second
 }
 
 var Conf ConfT

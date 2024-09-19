@@ -16,7 +16,7 @@ func main() {
     chrdsclient.Conf.SpaceID = "SPACEID"
     chrdsclient.Conf.ModulID = "MODULID"
     chrdsclient.Conf.DataManagerURL = []string{"https://DATAMANAGERURL01", "https://DATAMANAGERURL02"}
-    chrdsclient.Conf.DataManagerTimeOut = 1
+    chrdsclient.Conf.DataManagerTimeOut = 1 // Connect DataManager timeout = 1 second
     chrdsclient.Conf.ClientInSecureSkipVerify = true
 
 
