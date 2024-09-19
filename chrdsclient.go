@@ -1,4 +1,4 @@
-// Charybdis Monitoring System client v1.0.1
+// Charybdis Monitoring System client v1.0.2
 
 package chrdsclient
 
@@ -17,6 +17,7 @@ type ConfT struct {
 	SpaceID                  string
 	ModuleID                 string
 	DataManagerURL           []string
+	DataManagerTimeOut       int
 }
 
 var Conf ConfT
@@ -35,7 +36,6 @@ func statusCheck() (int, bool) {
 	return index, availability
 }
 
-// Логирование в систему CHRDS
 func Log(metric string, value string) error {
 	type RquestRawTextSaveT struct {
 		SpaceID   string `json:"spaceid"`
@@ -98,6 +98,10 @@ func Log(metric string, value string) error {
 func Status() []bool {
 	var responseUp []bool
 
+	if Conf.DataManagerTimeOut == 0 {
+		Conf.DataManagerTimeOut = 1
+	}
+
 	for _, item := range Conf.DataManagerURL {
 		req, err := http.NewRequest("GET", item+"/api/v1/version", nil)
 		if err != nil {
@@ -111,7 +115,7 @@ func Status() []bool {
 				transport := &http.Transport{
 					TLSClientConfig: &tls.Config{InsecureSkipVerify: Conf.ClientInSecureSkipVerify},
 				}
-				client = &http.Client{Transport: transport, Timeout: 1 * time.Second}
+				client = &http.Client{Transport: transport, Timeout: time.Duration(Conf.DataManagerTimeOut) * time.Second}
 			}
 			resp, err := client.Do(req)
 			if err != nil {

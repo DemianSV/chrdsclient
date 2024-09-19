@@ -16,7 +16,9 @@ func main() {
     chrdsclient.Conf.SpaceID = "SPACEID"
     chrdsclient.Conf.ModulID = "MODULID"
     chrdsclient.Conf.DataManagerURL = []string{"https://DATAMANAGERURL01", "https://DATAMANAGERURL02"}
+    chrdsclient.Conf.DataManagerTimeOut = 1
     chrdsclient.Conf.ClientInSecureSkipVerify = true
+
 
     err := chrdsclient.Log("log", "Test test test") // Parameter 1: Metric name, Parameter 2: Value (string).
     if err != nil {
